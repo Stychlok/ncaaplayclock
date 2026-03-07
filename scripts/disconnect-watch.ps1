@@ -1,0 +1,1 @@
+C:\Users\stych\AppData\Local\Android\Sdk\platform-tools\adb.exe disconnect 192.168.178.156:41117

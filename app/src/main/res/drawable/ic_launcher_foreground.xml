@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Play clock / timer icon: circle with hand (12 o'clock start) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,36 L54,72 M36,54 L72,54"
-        android:strokeWidth="8"
-        android:strokeColor="#FFFFFF" />
+    <!-- Outer ring (clock face) -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M54,42 L54,54 L66,54"
-        android:strokeWidth="6"
         android:strokeColor="#FFFFFF"
-        android:strokeLineCap="round" />
+        android:strokeWidth="6"
+        android:pathData="M54,18 A36,36 0 1,1 53.99,18" />
+    <!-- Hand from center toward top-right (timer running) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M54,54 L54,28" />
 </vector>

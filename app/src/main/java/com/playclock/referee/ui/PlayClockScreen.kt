@@ -1,7 +1,9 @@
 package com.playclock.referee.ui
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.view.WindowManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,6 +46,7 @@ import kotlinx.coroutines.delay
 private const val CLOCK_25 = 25
 private const val CLOCK_40 = 40
 private const val VIBRATE_LAST_SECONDS = 10
+private const val VIBRATE_URGENT_SECONDS = 5  // different (stronger) vibration from 5 down to 1
 
 @Composable
 fun PlayClockScreen() {
@@ -51,14 +55,29 @@ fun PlayClockScreen() {
     var secondsLeft by remember { mutableIntStateOf(0) }
     var isRunning by remember { mutableStateOf(false) }
 
+    // Keep screen on and app in foreground while countdown is running (avoid watch face / ambient)
+    DisposableEffect(activeDuration) {
+        val activity = context as? Activity
+        if (activeDuration != null && activity != null) {
+            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            onDispose {
+                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        } else {
+            onDispose { }
+        }
+    }
+
     LaunchedEffect(isRunning, activeDuration) {
         if (!isRunning || activeDuration == null) return@LaunchedEffect
         while (isRunning && secondsLeft > 0) {
             delay(1000)
             if (secondsLeft > 0) {
                 secondsLeft -= 1
-                // Vibration for the last 10 seconds (while 1..10 remaining); stop at 0
-                if (secondsLeft in 1..VIBRATE_LAST_SECONDS) {
+                // Vibration for the last 10 seconds; from 5 down use stronger pattern
+                if (secondsLeft in 1..VIBRATE_URGENT_SECONDS) {
+                    vibrateUrgent(context)
+                } else if (secondsLeft in (VIBRATE_URGENT_SECONDS + 1)..VIBRATE_LAST_SECONDS) {
                     vibrateShort(context)
                 }
             }
@@ -189,7 +208,7 @@ private fun RunningView(
         ) {
             Text(
                 text = secondsLeft.coerceAtLeast(0).toString(),
-                fontSize = 42.sp,
+                fontSize = 63.sp,
                 fontWeight = FontWeight.Bold,
                 color = displayColor,
                 textAlign = TextAlign.Center
@@ -232,16 +251,35 @@ private fun RunningView(
 }
 
 private fun vibrateShort(context: Context) {
-    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    val vibrator = getVibrator(context) ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && vibrator.hasVibrator()) {
+        vibrator.vibrate(
+            VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE)
+        )
+    }
+}
+
+/** Stronger double-pulse vibration for the last 5 seconds. */
+private fun vibrateUrgent(context: Context) {
+    val vibrator = getVibrator(context) ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && vibrator.hasVibrator()) {
+        // Two short pulses: vibrate 120ms, pause 80ms, vibrate 120ms
+        vibrator.vibrate(
+            VibrationEffect.createWaveform(
+                longArrayOf(0, 120, 80, 120),
+                intArrayOf(0, 255, 0, 255),
+                -1
+            )
+        )
+    }
+}
+
+private fun getVibrator(context: Context): Vibrator? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)
             ?.defaultVibrator
     } else {
         @Suppress("DEPRECATION")
         context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && vibrator?.hasVibrator() == true) {
-        vibrator.vibrate(
-            VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE)
-        )
     }
 }
