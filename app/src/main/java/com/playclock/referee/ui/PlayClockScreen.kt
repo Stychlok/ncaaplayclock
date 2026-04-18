@@ -3,6 +3,7 @@ package com.playclock.referee.ui
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.PowerManager
 import android.view.WindowManager
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -55,16 +56,24 @@ fun PlayClockScreen() {
     var secondsLeft by remember { mutableIntStateOf(0) }
     var isRunning by remember { mutableStateOf(false) }
 
-    // Keep screen on and app in foreground while countdown is running (avoid watch face / ambient)
+    // While countdown runs: keep screen on + partial wake lock so ticks and vibration keep firing
+    // when the watch dims (ambient); battery impact is acceptable for this short window.
     DisposableEffect(activeDuration) {
-        val activity = context as? Activity
-        if (activeDuration != null && activity != null) {
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            onDispose {
-                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            }
-        } else {
+        if (activeDuration == null) {
             onDispose { }
+        } else {
+            val activity = context as? Activity
+            val pm = context.applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            val wakeLock = pm.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "PlayClock::Countdown"
+            ).apply { setReferenceCounted(false) }
+            wakeLock.acquire()
+            activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            onDispose {
+                if (wakeLock.isHeld) wakeLock.release()
+                activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
         }
     }
 
