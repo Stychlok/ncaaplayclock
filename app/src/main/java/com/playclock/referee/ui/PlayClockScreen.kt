@@ -79,6 +79,7 @@ fun PlayClockScreen() {
 
     LaunchedEffect(isRunning, activeDuration) {
         if (!isRunning || activeDuration == null) return@LaunchedEffect
+        if (activeDuration == CLOCK_25) vibrateShort(context) else vibrateUrgent(context)
         while (isRunning && secondsLeft > 0) {
             delay(1000)
             if (secondsLeft > 0) {
