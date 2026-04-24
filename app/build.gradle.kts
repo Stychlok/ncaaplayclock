@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.playclock.referee"
+    namespace = "com.ncaaplayclock.referee"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.playclock.referee"
+        applicationId = "com.ncaaplayclock.referee"
         minSdk = 30
         targetSdk = 35
         versionCode = 1

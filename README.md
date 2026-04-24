@@ -26,6 +26,30 @@ American football play clock app for **Pixel Watch 2** (and other Wear OS 3+ dev
 
 The app appears as **Play Clock** in the watch app list.
 
+## Install via APK (sideloading)
+
+No Android Studio needed — use this if you just want to install the app from a pre-built APK file.
+
+**On your phone:**
+1. Install **Wear OS** from the Play Store (if not already there) and pair it with your watch.
+2. Install **Android Debug Bridge (ADB)**. The easiest option is the small standalone package:  
+   → Download "SDK Platform Tools" from developer.android.com/tools/releases/platform-tools and unzip it.
+
+**On your watch:**
+3. Go to **Settings → System → About** and tap **Build number** 7 times to enable Developer options.
+4. Go to **Settings → Developer options** and turn on **ADB debugging** and **Debug over Wi-Fi**.
+5. Note the IP address and port shown on screen (e.g. `192.168.1.42:12345`).
+
+**Install:**
+6. Open a terminal on your PC, navigate to the platform-tools folder, and run:
+   ```
+   adb connect <ip>:<port>
+   adb install playclock.apk
+   ```
+7. Accept the pairing prompt on your watch if asked.
+
+The app appears as **Play Clock** in the watch app list.
+
 ## Project structure
 
 ```
@@ -49,6 +73,31 @@ playclock/
 
 - **Default duration:** In `PlayClockScreen.kt`, change `DEFAULT_PLAY_CLOCK_SECONDS` (e.g. `40` for NFL, `25` for NCAA) or pass `initialSeconds` into `PlayClockScreen()`.
 - **UI/behavior:** You can extend the screen (e.g. presets for 40/25, vibration at 5 sec or 0, always-on display) in the same file or new composables.
+
+## Play Store listing
+
+### Short description (max 80 characters)
+
+```
+40 s / 25 s play clock for American football referees on Wear OS.
+```
+
+### Long description
+
+Play Clock is a minimalist play clock app for American football referees, built for Wear OS smartwatches.
+
+Tap 25 or 40 to start the countdown — the screen stays on for the entire play so you never lose track.
+
+**Features**
+- 25-second clock (NCAA / college rules)
+- 40-second clock (NFL / college rules)
+- Switch from 40 → 25 mid-countdown with a double-tap when a penalty is called
+- Color-coded countdown: purple → orange in the last 5 seconds → red at zero
+- Escalating vibration: single pulse from 10 seconds down, double pulse in the final 5
+- Screen stays on while the clock is running — no interruptions
+- Reset button to cancel and return to the start screen
+
+Designed for the wrist. No distractions, no setup — just tap and ref.
 
 ## License
 

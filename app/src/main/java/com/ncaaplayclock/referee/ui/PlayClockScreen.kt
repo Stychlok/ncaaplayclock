@@ -1,4 +1,4 @@
-package com.playclock.referee.ui
+package com.ncaaplayclock.referee.ui
 
 import android.app.Activity
 import android.content.Context
