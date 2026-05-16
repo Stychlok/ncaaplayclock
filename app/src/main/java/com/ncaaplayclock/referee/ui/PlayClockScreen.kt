@@ -227,7 +227,7 @@ private fun RunningView(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = “sec”,
+                    text = "sec",
                     fontSize = 16.sp,
                     color = Color(0xFF666666)
                 )
@@ -276,7 +276,7 @@ private fun RunningView(
                 textAlign = TextAlign.Center
             )
             Text(
-                text = “sec”,
+                text = "sec",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -292,14 +292,14 @@ private fun RunningView(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = “↺”,
+                    text = "↺",
                     fontSize = 24.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (onSwitchTo25 != null) {
                 Text(
-                    text = “25”,
+                    text = "25",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFFBB86FC),
