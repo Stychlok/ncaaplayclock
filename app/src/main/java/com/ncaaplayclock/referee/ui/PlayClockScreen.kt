@@ -50,7 +50,7 @@ private const val VIBRATE_LAST_SECONDS = 10
 private const val VIBRATE_URGENT_SECONDS = 5  // different (stronger) vibration from 5 down to 1
 
 @Composable
-fun PlayClockScreen() {
+fun PlayClockScreen(isAmbient: Boolean = false) {
     val context = LocalContext.current
     var activeDuration by remember { mutableStateOf<Int?>(null) } // 25 or 40 when running
     var secondsLeft by remember { mutableIntStateOf(0) }
@@ -99,10 +99,10 @@ fun PlayClockScreen() {
     }
 
     if (activeDuration != null) {
-        // Running: single clock with countdown, reset, and (when 40) switch to 25
         RunningView(
             duration = activeDuration!!,
             secondsLeft = secondsLeft,
+            isAmbient = isAmbient,
             onReset = {
                 activeDuration = null
                 secondsLeft = 0
@@ -116,6 +116,37 @@ fun PlayClockScreen() {
                 }
             } else null
         )
+    } else if (isAmbient) {
+        // Ambient start screen: dim, OLED-friendly
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "25",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF666666),
+                textAlign = TextAlign.Center
+            )
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .width(2.dp)
+                    .height(40.dp)
+                    .background(Color(0xFF444444))
+            )
+            Text(
+                text = "40",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF666666),
+                textAlign = TextAlign.Center
+            )
+        }
     } else {
         // Start screen: split — 25 left, 40 right, divider in middle
         Row(
@@ -123,7 +154,6 @@ fun PlayClockScreen() {
                 .fillMaxSize()
                 .padding(4.dp)
         ) {
-            // Left: 25 seconds
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -143,14 +173,12 @@ fun PlayClockScreen() {
                     textAlign = TextAlign.Center
                 )
             }
-            // Vertical divider
             Box(
                 modifier = Modifier
                     .width(2.dp)
                     .fillMaxHeight()
                     .background(Color.Gray)
             )
-            // Right: 40 seconds
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -178,9 +206,36 @@ fun PlayClockScreen() {
 private fun RunningView(
     duration: Int,
     secondsLeft: Int,
+    isAmbient: Boolean,
     onReset: () -> Unit,
     onSwitchTo25: (() -> Unit)?
 ) {
+    if (isAmbient) {
+        // Ambient countdown: black background, dim number only
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = secondsLeft.coerceAtLeast(0).toString(),
+                    fontSize = 63.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFAAAAAA),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = “sec”,
+                    fontSize = 16.sp,
+                    color = Color(0xFF666666)
+                )
+            }
+        }
+        return
+    }
+
     val displayColor = when {
         secondsLeft <= 0 -> Color.Red
         secondsLeft <= 5 -> Color(0xFFFF9800)
@@ -201,7 +256,6 @@ private fun RunningView(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Top: which clock is running (same “icon” as start: the number 25 or 40)
         Text(
             text = duration.toString(),
             fontSize = 20.sp,
@@ -209,8 +263,6 @@ private fun RunningView(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-
-        // Center: big remaining time (double-tap when 40 to switch to 25)
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -224,13 +276,11 @@ private fun RunningView(
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "sec",
+                text = “sec”,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-
-        // Bottom: reset (↺) and, when 40 running, switch-to-25 button below
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -242,14 +292,14 @@ private fun RunningView(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "↺",
+                    text = “↺”,
                     fontSize = 24.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (onSwitchTo25 != null) {
                 Text(
-                    text = "25",
+                    text = “25”,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFFBB86FC),

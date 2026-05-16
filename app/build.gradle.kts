@@ -49,4 +49,5 @@ dependencies {
     implementation("androidx.wear.compose:compose-foundation:1.5.0")
     implementation("androidx.wear.compose:compose-material3:1.5.0")
     implementation("androidx.wear.compose:compose-ui-tooling:1.5.0")
+    implementation("androidx.wear:wear:1.3.0")
 }
