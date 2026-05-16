@@ -1,1 +1,1 @@
-C:\Users\stych\AppData\Local\Android\Sdk\platform-tools\adb.exe pair 192.168.178.156:41463
+C:\Users\stych\AppData\Local\Android\Sdk\platform-tools\adb.exe pair 192.168.178.156:45727
